@@ -1,0 +1,43 @@
+# HubReworked Configuration
+# Version: RELEASE-1.0
+# Reload or restart the server after making changes.
+
+# LaunchPad Settings
+launchpad-enabled: true
+
+# Worlds where LaunchPad is active
+launchpad-enabled-worlds:
+  - world           # Overworld
+  - world_nether    # Nether
+  - world_the_end   # The End
+
+# Scoreboard Settings
+scoreboard-enabled: true
+
+scoreboard-features:
+  # Scoreboard title (supports '&' color codes)
+  title: "&e&l%world%"
+
+  # Lines displayed on the scoreboard (top to bottom)
+  lines:
+    - ""
+    - " Some announcements here."
+    - ""
+    - " &fUser: &5%player_name%"
+    - " &fRank: %luckperms_prefix%"
+    - " &fCash: &a$%vault_eco_balance%"
+    - " &fPoints: %points%"
+    - " &fXP: &3%xp%"
+    - " &fStrength: &c%armor_level%"
+    - " &fDuration: &6%playtime_stats%"
+    - ""
+    - " &fOnline: &a%online_users%"
+    - ""
+
+# Tab Modifier Settings
+tab-modify-enabled: true
+
+# Notes:
+# - Use '&' for color codes (e.g., &a = green, &b = aqua, &l = bold)
+# - Requires PlaceholderAPI for placeholder support (e.g., %vault_eco_balance%)
+# - Each scoreboard line must be 40 characters or fewer

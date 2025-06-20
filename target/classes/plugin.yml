@@ -1,0 +1,7 @@
+name: HubReworked
+version: 1.0-SNAPSHOT
+main: me.makaioohara.hubreworked.HubReworked
+api-version: 1.21
+author: MakaioOhara
+description: A reworked hub plugin for Minecraft 1.21 servers.
+softdepend: [ "PlaceholderAPI" ]
