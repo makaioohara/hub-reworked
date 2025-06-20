@@ -1,5 +1,5 @@
 name: HubReworked
-version: RELEASE-1.0
+version: 1.0-SNAPSHOT
 main: me.makaioohara.hubreworked.HubReworked
 api-version: 1.21
 author: MakaioOhara

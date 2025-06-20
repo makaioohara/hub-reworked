@@ -5,3 +5,9 @@ api-version: 1.21
 author: MakaioOhara
 description: A reworked hub plugin for Minecraft 1.21 servers.
 softdepend: [ "PlaceholderAPI" ]
+commands:
+  hubreworkedreload:
+    description: Reloads HubReworked plugin config
+    usage: /hubreworkedreload
+    permission: hubreworked.reload
+    permission-message: You do not have permission to reload HubReworked.

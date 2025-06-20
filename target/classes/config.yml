@@ -1,6 +1,10 @@
+# --------------------------------------------------
+#
 # HubReworked Configuration
-# Version: Release
+# Version: 1.0-SNAPSHOT
 # Reload or restart the server after making changes.
+#
+# --------------------------------------------------
 
 # LaunchPad Settings
 launchpad-enabled: true
@@ -15,29 +19,28 @@ launchpad-enabled-worlds:
 scoreboard-enabled: true
 
 scoreboard-features:
-  # Scoreboard title (supports '&' color codes)
+  # Title of the scoreboard (use '&' for colors)
   title: "&e&l%world%"
 
   # Lines displayed on the scoreboard (top to bottom)
   lines:
     - ""
-    - " Some announcements here."
+    - "&bSome announcements here."
     - ""
-    - " &fUser: &5%player_name%"
-    - " &fRank: %luckperms_prefix%"
-    - " &fCash: &a$%vault_eco_balance%"
-    - " &fPoints: %points%"
-    - " &fXP: &3%xp%"
-    - " &fStrength: &c%armor_level%"
-    - " &fDuration: &6%playtime_stats%"
+    - "&fUser: &5%player_name%"
+    - "&fRank: %luckperms_prefix%"
+    - "&fCash: &a$%vault_eco_balance_formatted%"
     - ""
-    - " &fOnline: &a%online_users%"
+    - "&fOnline: &a%online_users%"
     - ""
 
 # Tab Modifier Settings
 tab-modify-enabled: true
 
-# Notes:
-# - Use '&' for color codes (e.g., &a = green, &b = aqua, &l = bold)
-# - Requires PlaceholderAPI for placeholder support (e.g., %vault_eco_balance%)
-# - Each scoreboard line must be 40 characters or fewer
+# --------------------------------------------------
+#
+# Notes
+# - Use '&' for color codes (e.g., &a = green, &l = bold)
+# - Requires PlaceholderAPI for placeholder support.
+#
+# --------------------------------------------------
