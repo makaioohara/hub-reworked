@@ -1,4 +1,8 @@
-modifications\ScoreboardModifier.class
+me\makaioohara\hubreworked\modifications\SidebarModifier.class
+me\makaioohara\hubreworked\commands\SidebarCommand.class
+me\makaioohara\hubreworked\commands\ReloaderCommand.class
+me\makaioohara\hubreworked\modifications\TabModifier.class
+me\makaioohara\hubreworked\util\PlaceholderUtil.class
 me\makaioohara\hubreworked\HubReworked.class
-modifications\LaunchPad.class
-modifications\TabModifier.class
+me\makaioohara\hubreworked\modifications\LaunchpadModifier.class
+me\makaioohara\hubreworked\modifications\NametagModifier.class

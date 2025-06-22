@@ -18,19 +18,19 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TabModifier implements Listener {
+public class NametagModifier implements Listener {
 
     private final Plugin plugin;
     private BukkitTask task;
 
-    public TabModifier(Plugin plugin) {
+    public NametagModifier(Plugin plugin) {
         this.plugin = plugin;
     }
 
     public void start() {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        updatePlayerListNames();
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::updatePlayerListNames, 0L, 100L);
+        updatePlayerDisplayNames();
+        task = Bukkit.getScheduler().runTaskTimer(plugin, this::updatePlayerDisplayNames, 0L, 100L);
     }
 
     public void stop() {
@@ -41,7 +41,7 @@ public class TabModifier implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    public void updatePlayerListNames() {
+    public void updatePlayerDisplayNames() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             String prefix = PlaceholderAPI.setPlaceholders(player, "%luckperms_prefix%");
             if (prefix == null || prefix.trim().isEmpty()) {
@@ -52,15 +52,14 @@ public class TabModifier implements Listener {
             rawName = PlaceholderUtil.applyBuiltInPlaceholders(player, rawName);
 
             Component nameComponent = deserializeMixedColors(rawName);
-            player.playerListName(nameComponent);
+
+            player.displayName(nameComponent);
         }
     }
 
     private Component deserializeMixedColors(String input) {
         String converted = convertHexToMiniMessage(input);
-
         converted = convertLegacyToMiniMessage(converted);
-
         return MiniMessage.miniMessage().deserialize(converted);
     }
 
@@ -72,7 +71,6 @@ public class TabModifier implements Listener {
 
     static {
         LEGACY_TO_MINI = new LinkedHashMap<>();
-        // Colors
         LEGACY_TO_MINI.put("&0", "<black>");
         LEGACY_TO_MINI.put("&1", "<dark_blue>");
         LEGACY_TO_MINI.put("&2", "<dark_green>");
@@ -114,6 +112,6 @@ public class TabModifier implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        updatePlayerListNames();
+        updatePlayerDisplayNames();
     }
 }

@@ -1,46 +1,44 @@
-# --------------------------------------------------
-#
-# HubReworked Configuration
-# Version: 1.0-SNAPSHOT
-# Reload or restart the server after making changes.
-#
-# --------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#                                                       |
+# @ HubReworked                                         |
+# @ Version: 1.1-SNAPSHOT                               |
+# @ Reload or restart the server after making changes.  |
+#                                                       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 # LaunchPad Settings
-launchpad-enabled: true
+launchpad:
+  enabled: true
 
-# Worlds where LaunchPad is active
-launchpad-enabled-worlds:
-  - world           # Overworld
-  - world_nether    # Nether
-  - world_the_end   # The End
+  worlds:
+    - world
+    - world_nether
+    - world_the_end
 
 # Scoreboard Settings
-scoreboard-enabled: true
+sidebar:
+  enabled: true
 
-scoreboard-features:
-  # Title of the scoreboard (use '&' for colors)
-  title: "&e&l%world%"
+  features:
+    title: "&e&l%world%"
 
-  # Lines displayed on the scoreboard (top to bottom)
-  lines:
-    - ""
-    - "&bSome announcements here."
-    - ""
-    - "&fUser: &5%player_name%"
-    - "&fRank: %luckperms_prefix%"
-    - "&fCash: &a$%vault_eco_balance_formatted%"
-    - ""
-    - "&fOnline: &a%online_users%"
-    - ""
+    lines:
+      - ""
+      - "&lWaifuland"
+      - ""
+      - "&fUser: &5%player%"
+      - "&fRank: %luckperms_prefix%"
+      - "&fCash: &a$%vault_eco_balance_formatted%"
+      - ""
+      - "&fOnline: &a%online%"
+      - ""
+      - "&7/sidebar - hides sidebar"
+      - ""
 
-# Tab Modifier Settings
-tab-modify-enabled: true
+# TAB Settings
+tab-customize:
+  enabled: true
 
-# --------------------------------------------------
-#
-# Notes
-# - Use '&' for color codes (e.g., &a = green, &l = bold)
-# - Requires PlaceholderAPI for placeholder support.
-#
-# --------------------------------------------------
+# Nametag Settings
+nametag-customize:
+  enabled: true

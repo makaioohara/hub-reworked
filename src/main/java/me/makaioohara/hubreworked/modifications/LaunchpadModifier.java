@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class LaunchPad implements Listener {
+public class LaunchpadModifier implements Listener {
 
     private final JavaPlugin plugin;
     private final World targetWorld;
@@ -29,13 +29,12 @@ public class LaunchPad implements Listener {
     private boolean cooldown = false;
     private boolean launchPadActive = true;
 
-    public LaunchPad(JavaPlugin plugin, World world) {
+    public LaunchpadModifier(JavaPlugin plugin, World world) {
         this.plugin = plugin;
         this.targetWorld = world;
 
-        if (!plugin.getConfig().getBoolean("launchpad-enabled", true)) {
+        if (!plugin.getConfig().getBoolean("launchpad.enabled", true)) {
             this.launchPadActive = false;
-            plugin.getLogger().info("LaunchPad is disabled for world: " + world.getName());
             return;
         }
 
@@ -45,7 +44,6 @@ public class LaunchPad implements Listener {
     public void init() {
         if (!launchPadActive) return;
         scanForPlates();
-        plugin.getLogger().info("Found " + allPlates.size() + " pressure plates in world: " + targetWorld.getName());
     }
 
     private void scanForPlates() {

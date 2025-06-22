@@ -1,5 +1,7 @@
-package me.makaioohara.hubreworked;
+package me.makaioohara.hubreworked.commands;
 
+import me.makaioohara.hubreworked.HubReworked;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,28 +10,24 @@ import org.bukkit.command.TabExecutor;
 import java.util.Collections;
 import java.util.List;
 
-public class ReloadCommand implements CommandExecutor, TabExecutor {
+public class ReloaderCommand implements CommandExecutor, TabExecutor {
 
     private final HubReworked plugin;
 
-    public ReloadCommand(HubReworked plugin) {
+    public ReloaderCommand(HubReworked plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("hubreworked.reload")) {
-            sender.sendMessage("§cYou don't have permission to reload this plugin.");
             return true;
         }
 
         plugin.reloadConfig();
-        plugin.getLogger().info("Config reloaded by " + sender.getName());
+        plugin.reloadFeatures();
 
-        // Re-init features based on updated config
-        plugin.getServer().getScheduler().runTask(plugin, () -> plugin.onEnable());
-
-        sender.sendMessage("§aHubReworked config reloaded successfully.");
+        sender.sendMessage(ChatColor.GRAY + "HubReworked has been reloaded.");
         return true;
     }
 
