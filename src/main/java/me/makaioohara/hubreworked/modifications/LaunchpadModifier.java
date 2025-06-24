@@ -3,52 +3,43 @@ package me.makaioohara.hubreworked.modifications;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class LaunchpadModifier implements Listener {
-
+public class LaunchpadModifier {
     private final JavaPlugin plugin;
-    private final World targetWorld;
-    private final Set<String> allPlates = Collections.synchronizedSet(new HashSet<>());
-    private final Set<String> pressedPlates = Collections.synchronizedSet(new HashSet<>());
+    private final Set<String> allowedWorlds = new HashSet<>();
+    private final Set<BlockPos> allPlates = new HashSet<>();
+    private final Set<BlockPos> pressedPlates = new HashSet<>();
     private boolean allActivated = false;
     private boolean cooldown = false;
-    private boolean launchPadActive = true;
+    private boolean launchPadActive;
 
-    public LaunchpadModifier(JavaPlugin plugin, World world) {
+    public LaunchpadModifier(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.targetWorld = world;
-
-        if (!plugin.getConfig().getBoolean("launchpad.enabled", true)) {
-            this.launchPadActive = false;
-            return;
-        }
-
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        this.launchPadActive = plugin.getConfig().getBoolean("launchpad.enabled", true);
+        if (!launchPadActive) return;
+        this.allowedWorlds.addAll(plugin.getConfig().getStringList("launchpad.worlds"));
     }
 
     public void init() {
         if (!launchPadActive) return;
+        allPlates.clear();
+        pressedPlates.clear();
         scanForPlates();
     }
 
     private void scanForPlates() {
-        for (Chunk chunk : targetWorld.getLoadedChunks()) {
-            scanChunkForPlates(chunk);
+        for (World world : Bukkit.getWorlds()) {
+            if (!allowedWorlds.contains(world.getName())) continue;
+            for (Chunk chunk : world.getLoadedChunks()) {
+                scanChunkForPlates(chunk);
+            }
         }
     }
 
@@ -58,7 +49,7 @@ public class LaunchpadModifier implements Listener {
                 for (int z = 0; z < 16; z++) {
                     Block block = chunk.getBlock(x, y, z);
                     if (isPressurePlate(block.getType())) {
-                        allPlates.add(getBlockKey(block.getLocation()));
+                        allPlates.add(new BlockPos(block.getX(), block.getY(), block.getZ(), block.getWorld().getName()));
                     }
                 }
             }
@@ -69,22 +60,17 @@ public class LaunchpadModifier implements Listener {
         return material.name().endsWith("PRESSURE_PLATE");
     }
 
-    private String getBlockKey(Location loc) {
-        return loc.getWorld().getName() + ":" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
-    }
+    public void handlePressurePlate(Player player, Block block, Action action) {
+        if (!launchPadActive || action != Action.PHYSICAL || block == null) return;
 
-    @EventHandler
-    public void onPressurePlate(PlayerInteractEvent event) {
-        if (!launchPadActive) return;
-        if (event.getAction() != Action.PHYSICAL || event.getClickedBlock() == null) return;
+        String worldName = block.getWorld().getName();
+        if (!allowedWorlds.contains(worldName)) return;
+        if (!isPressurePlate(block.getType())) return;
 
-        Block block = event.getClickedBlock();
-        if (!isPressurePlate(block.getType()) || block.getWorld() != targetWorld) return;
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ(), worldName);
+        pressedPlates.add(pos);
 
-        String key = getBlockKey(block.getLocation());
-        pressedPlates.add(key);
-
-        if (!allActivated && pressedPlates.containsAll(allPlates) && !cooldown) {
+        if (!allActivated && pressedPlates.size() == allPlates.size()) {
             allActivated = true;
             cooldown = true;
             launchAllPlayers();
@@ -94,12 +80,15 @@ public class LaunchpadModifier implements Listener {
 
     private void launchAllPlayers() {
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!allowedWorlds.contains(player.getWorld().getName())) continue;
+
             Vector direction = player.getLocation().getDirection().normalize().multiply(2);
             direction.setY(1);
             player.setVelocity(direction);
             player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 0.5f);
-            player.getWorld().spawnParticle(Particle.EXPLOSION, player.getLocation(), 2);
-            player.setMetadata("ignoreFallDamage", new FixedMetadataValue(plugin, true));
+            player.getWorld().spawnParticle(Particle.EXPLOSION, player.getLocation(), 10, 0.2, 0.2, 0.2, 0);
+
+            player.setMetadata("ignoreFallDamage", new FixedMetadataValue(plugin, System.currentTimeMillis()));
         }
     }
 
@@ -108,13 +97,11 @@ public class LaunchpadModifier implements Listener {
             pressedPlates.clear();
             allActivated = false;
             cooldown = false;
-        }, 10 * 20L); // 10 seconds cooldown
+        }, 3 * 20L);
     }
 
-    @EventHandler
-    public void onFallDamage(EntityDamageEvent event) {
+    public void handleFallDamage(Player player, EntityDamageEvent event) {
         if (!launchPadActive) return;
-        if (!(event.getEntity() instanceof Player player)) return;
 
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL &&
                 player.hasMetadata("ignoreFallDamage")) {
@@ -123,34 +110,48 @@ public class LaunchpadModifier implements Listener {
         }
     }
 
-    @EventHandler
-    public void onChunkLoad(ChunkLoadEvent event) {
-        if (!launchPadActive) return;
-        if (event.getWorld() != targetWorld) return;
-        scanChunkForPlates(event.getChunk());
+    public void handleChunkLoad(Chunk chunk) {
+        if (!launchPadActive || !allowedWorlds.contains(chunk.getWorld().getName())) return;
+        scanChunkForPlates(chunk);
     }
 
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (!launchPadActive) return;
-        Block block = event.getBlockPlaced();
-        if (block.getWorld() != targetWorld) return;
-
+    public void handleBlockPlace(Block block) {
+        if (!launchPadActive || !allowedWorlds.contains(block.getWorld().getName())) return;
         if (isPressurePlate(block.getType())) {
-            allPlates.add(getBlockKey(block.getLocation()));
+            allPlates.add(new BlockPos(block.getX(), block.getY(), block.getZ(), block.getWorld().getName()));
         }
     }
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (!launchPadActive) return;
-        Block block = event.getBlock();
-        if (!block.getWorld().equals(targetWorld)) return;
-
+    public void handleBlockBreak(Block block) {
+        if (!launchPadActive || !allowedWorlds.contains(block.getWorld().getName())) return;
         if (isPressurePlate(block.getType())) {
-            String key = getBlockKey(block.getLocation());
-            allPlates.remove(key);
-            pressedPlates.remove(key);
+            BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
+            allPlates.remove(pos);
+            pressedPlates.remove(pos);
+        }
+    }
+
+    private static class BlockPos {
+        final int x, y, z;
+        final String world;
+
+        BlockPos(int x, int y, int z, String world) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.world = world;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof BlockPos other)) return false;
+            return x == other.x && y == other.y && z == other.z && Objects.equals(world, other.world);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y, z, world);
         }
     }
 }

@@ -1,12 +1,12 @@
 package me.makaioohara.hubreworked;
 
+import me.makaioohara.hubreworked.handler.EventsHandler;
 import me.makaioohara.hubreworked.commands.ReloaderCommand;
 import me.makaioohara.hubreworked.commands.SidebarCommand;
 import me.makaioohara.hubreworked.modifications.LaunchpadModifier;
 import me.makaioohara.hubreworked.modifications.NametagModifier;
 import me.makaioohara.hubreworked.modifications.SidebarModifier;
 import me.makaioohara.hubreworked.modifications.TabModifier;
-import me.makaioohara.hubreworked.modifications.NametagModifier;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,8 +17,16 @@ import java.util.List;
 public final class HubReworked extends JavaPlugin {
 
     private final List<LaunchpadModifier> activePlates = new ArrayList<>();
+    private LaunchpadModifier launchpadModifier;
+    public LaunchpadModifier getLaunchpadModifier() {
+        return launchpadModifier;
+    }
+
     private TabModifier tablistUpdater;
+
     private NametagModifier nameTagUpdater;
+
+    private int sidebarTaskId = -1;
 
     public static boolean isPlaceholderApiAvailable;
     public static boolean isLuckPermsAvailable;
@@ -26,8 +34,15 @@ public final class HubReworked extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        getCommand("hwreload").setExecutor(new ReloaderCommand(this));
-        getCommand("sidebar").setExecutor(new SidebarCommand(this));
+
+        getServer().getPluginManager().registerEvents(new EventsHandler(this), this);
+
+        if (getCommand("hwreload") != null) {
+            getCommand("hwreload").setExecutor(new ReloaderCommand(this));
+        }
+        if (getCommand("sidebar") != null) {
+            getCommand("sidebar").setExecutor(new SidebarCommand(this));
+        }
 
         isPlaceholderApiAvailable = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
         isLuckPermsAvailable = Bukkit.getPluginManager().getPlugin("LuckPerms") != null;
@@ -51,6 +66,11 @@ public final class HubReworked extends JavaPlugin {
             nameTagUpdater = null;
         }
 
+        if (sidebarTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(sidebarTaskId);
+            sidebarTaskId = -1;
+        }
+
         Bukkit.getScheduler().cancelTasks(this);
 
         getLogger().info("Hub Reworked has been disabled.");
@@ -71,29 +91,29 @@ public final class HubReworked extends JavaPlugin {
             nameTagUpdater = null;
         }
 
+        if (sidebarTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(sidebarTaskId);
+            sidebarTaskId = -1;
+        }
+
         reloadConfig();
 
         // Launchpad feature
         if (getConfig().getBoolean("launchpad.enabled", true)) {
-            for (var worldName : getConfig().getStringList("launchpad.worlds")) {
-                var world = Bukkit.getWorld(worldName);
-                if (world != null) {
-                    var plate = new LaunchpadModifier(this, world);
-                    plate.init();
-                    activePlates.add(plate);
-                } else {
-                    getLogger().warning("World '" + worldName + "' not found.");
-                }
-            }
+            launchpadModifier = new LaunchpadModifier(this);
+            launchpadModifier.init();
+            activePlates.add(launchpadModifier);
         }
 
-        // Scoreboard (Sidebar) feature — schedule update task only
+
+        // Sidebar feature
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
-                for (var player : Bukkit.getOnlinePlayers()) {
+            sidebarTaskId = Bukkit.getScheduler().runTaskTimer(this, () -> {
+                var players = new ArrayList<>(Bukkit.getOnlinePlayers());
+                for (var player : players) {
                     SidebarModifier.updateSidebarStatic(this, player);
                 }
-            }, 20L, 20L);  // run every 1 second (20 ticks)
+            }, 1200L, 1200L).getTaskId();
         }
 
         // TABModifier feature
@@ -101,6 +121,8 @@ public final class HubReworked extends JavaPlugin {
             if (isPlaceholderApiAvailable && isLuckPermsAvailable) {
                 tablistUpdater = new TabModifier(this);
                 tablistUpdater.start();
+            } else {
+                getLogger().warning("Tab customization is enabled but PlaceholderAPI or LuckPerms is missing.");
             }
         }
 
@@ -109,6 +131,8 @@ public final class HubReworked extends JavaPlugin {
             if (isPlaceholderApiAvailable && isLuckPermsAvailable) {
                 nameTagUpdater = new NametagModifier(this);
                 nameTagUpdater.start();
+            } else {
+                getLogger().warning("Nametag customization is enabled but PlaceholderAPI or LuckPerms is missing.");
             }
         }
     }

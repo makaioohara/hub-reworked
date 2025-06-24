@@ -1,4 +1,4 @@
-package me.makaioohara.hubreworked.util;
+package me.makaioohara.hubreworked.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

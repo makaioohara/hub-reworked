@@ -2,11 +2,11 @@ package me.makaioohara.hubreworked.modifications;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.makaioohara.hubreworked.HubReworked;
-import me.makaioohara.hubreworked.util.PlaceholderUtil;
+import me.makaioohara.hubreworked.utils.PlaceholderUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.scoreboard.*;
 
 import java.util.HashSet;
@@ -94,7 +94,7 @@ public class SidebarModifier {
 
         for (char c : input.toCharArray()) {
             if (colorCode) {
-                result.append(c); // Keep color codes as-is (e.g., 'a', 'l', etc.)
+                result.append(c);
                 colorCode = false;
             } else if (c == ChatColor.COLOR_CHAR) {
                 result.append(c);

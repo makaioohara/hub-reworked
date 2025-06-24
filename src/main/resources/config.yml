@@ -12,19 +12,17 @@ launchpad:
 
   worlds:
     - world
-    - world_nether
-    - world_the_end
 
 # Scoreboard Settings
 sidebar:
   enabled: true
 
   features:
-    title: "&e&l%world%"
+    title: "&e&lHub Reworked"
 
     lines:
       - ""
-      - "&lWaifuland"
+      - "&l%world%"
       - ""
       - "&fUser: &5%player%"
       - "&fRank: %luckperms_prefix%"
@@ -32,7 +30,7 @@ sidebar:
       - ""
       - "&fOnline: &a%online%"
       - ""
-      - "&7/sidebar - hides sidebar"
+      - "&7/sidebar"
       - ""
 
 # TAB Settings
