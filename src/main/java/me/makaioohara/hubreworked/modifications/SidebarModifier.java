@@ -6,7 +6,6 @@ import me.makaioohara.hubreworked.utils.PlaceholderUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.scoreboard.*;
 
 import java.util.HashSet;
@@ -32,12 +31,14 @@ public class SidebarModifier {
     }
 
     public static void updateSidebarStatic(HubReworked plugin, Player player) {
-        if (!isSidebarEnabled(player)) {
-            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-            return;
-        }
+        if (!isSidebarEnabled(player)) return;
 
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Scoreboard scoreboard = plugin.getSharedScoreboard();
+
+        // Clear old sidebar
+        Objective old = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+        if (old != null) old.unregister();
+
         String rawTitle = plugin.getConfig().getString("sidebar.features.title", "&aHub Sidebar");
         String parsedTitle = PlaceholderUtil.applyBuiltInPlaceholders(player, rawTitle);
 
@@ -49,15 +50,14 @@ public class SidebarModifier {
         parsedTitle = stripHexColorCodes(parsedTitle);
         parsedTitle = preserveColorsAndUppercase(parsedTitle);
 
-        Objective objective = scoreboard.registerNewObjective("sidebar_" + player.getName(), "dummy", parsedTitle);
+        Objective objective = scoreboard.registerNewObjective("sidebar", "dummy", parsedTitle);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         List<String> lines = plugin.getConfig().getStringList("sidebar.features.lines");
 
         int score = lines.size();
-        int blankCounter = 0;
-
         Set<String> usedLines = new HashSet<>();
+
         for (String rawLine : lines) {
             String parsedLine = PlaceholderUtil.applyBuiltInPlaceholders(player, rawLine);
 

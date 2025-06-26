@@ -6,6 +6,17 @@
 #                                                       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
+#   Available built-in placeholders you can use in messages -
+#   %player%    - Player's name
+#   %world%     - Current world name
+#   %gamemode%  - Player's game mode (e.g., SURVIVAL, CREATIVE)
+#   %time%      - Current server time (HH:mm:ss)
+#   %location%  - Player's location in "x, y, z" format
+#   %x%         - Player's X coordinate (block)
+#   %y%         - Player's Y coordinate (block)
+#   %z%         - Player's Z coordinate (block)
+#   %online%    - Number of online players on the server
+
 # LaunchPad Settings
 launchpad:
   enabled: true

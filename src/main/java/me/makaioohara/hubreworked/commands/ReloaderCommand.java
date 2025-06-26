@@ -27,7 +27,7 @@ public class ReloaderCommand implements CommandExecutor, TabExecutor {
         plugin.reloadConfig();
         plugin.reloadFeatures();
 
-        sender.sendMessage(ChatColor.GRAY + "HubReworked has been reloaded.");
+        sender.sendMessage(ChatColor.GRAY + "Hub Reworked has been reloaded.");
         return true;
     }
 
